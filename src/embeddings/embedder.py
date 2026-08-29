@@ -1,4 +1,10 @@
 from sentence_transformers import SentenceTransformer
+import sys
+import os
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+ingestion_dir = os.path.join(current_dir, "..", "ingestion")
+sys.path.append(ingestion_dir)
 
 def get_embedder():
     """
@@ -24,12 +30,11 @@ def embed_chunks(chunks: list[dict], model) -> list[dict]:
 
 
 if __name__ == "__main__":
-    import sys
-    sys.path.append("../ingestion")  # so we can import parser/chunker
     from parser import parse_pdf
     from chunker import chunk_pages
 
-    pages = parse_pdf("../../data/llm_notes.pdf")
+    data_path = os.path.join(current_dir, "..", "..", "data", "llm_notes.pdf")
+    pages = parse_pdf(data_path)
     chunks = chunk_pages(pages)
 
     model = get_embedder()
