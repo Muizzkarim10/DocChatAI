@@ -7,7 +7,7 @@ sys.path.append(os.path.join(current_dir, "..", "embeddings"))
 
 from parser import parse_pdf
 from chunker import chunk_pages
-from embedder import get_embedder, embed_chunks
+from embedder import get_embedder, embed_chunks, embed_query
 from vector_store import VectorStore
 
 # Build the pipeline end to end
@@ -18,13 +18,13 @@ chunks = chunk_pages(pages)
 model = get_embedder()
 chunks = embed_chunks(chunks, model)
 
-store = VectorStore(dimension=384)
+store = VectorStore(dimension=768)
 store.add_chunks(chunks)
 store.save()  # persist to disk for later reuse
 
 # Now try a real query
-query = "Retrieval-Augmented Generation"
-query_vector = model.encode(query)
+query = "What is fine-tuning?"
+query_vector = embed_query(query, model)
 
 results = store.search(query_vector, k=3)
 

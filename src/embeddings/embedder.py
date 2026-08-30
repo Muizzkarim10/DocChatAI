@@ -6,27 +6,31 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 ingestion_dir = os.path.join(current_dir, "..", "ingestion")
 sys.path.append(ingestion_dir)
 
+QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
+
 def get_embedder():
-    """
-    Loads the embedding model once. We wrap this in a function so later
-    (in the FastAPI app) we load it a single time at startup, not per-request.
-    """
-    return SentenceTransformer("all-MiniLM-L6-v2")
+    return SentenceTransformer("BAAI/bge-base-en-v1.5")
 
 
 def embed_chunks(chunks: list[dict], model) -> list[dict]:
     """
-    Adds an 'embedding' field to each chunk dict.
+    Embeds document chunks (no prefix needed — only queries get prefixed).
     """
     texts = [chunk["text"] for chunk in chunks]
-
-    # encode() batches internally — much faster than embedding one at a time
     embeddings = model.encode(texts, show_progress_bar=True)
 
     for chunk, embedding in zip(chunks, embeddings):
         chunk["embedding"] = embedding
 
     return chunks
+
+
+def embed_query(query: str, model):
+    """
+    Embeds a search query — BGE models expect a specific instruction
+    prefix for queries, different from how documents are embedded.
+    """
+    return model.encode(QUERY_PREFIX + query)
 
 
 if __name__ == "__main__":
