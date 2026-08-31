@@ -1,6 +1,5 @@
 import ollama
 
-
 PROMPT_TEMPLATE = """You are a helpful assistant answering questions using ONLY the provided context.
 
 Context:
@@ -48,18 +47,19 @@ if __name__ == "__main__":
     sys.path.append(os.path.join(current_dir, "..", "embeddings"))
     sys.path.append(os.path.join(current_dir, "..", "retrieval"))
 
-    from embedder import get_embedder
+    from embedder import get_embedder, embed_query
     from vector_store import VectorStore
 
     # Load the already-saved vector store instead of rebuilding it —
     # this is why we called store.save() earlier
-    store = VectorStore(dimension=384)
-    store.load(os.path.join(current_dir, "..", "retrieval", "vector_store"))
+    store = VectorStore(dimension=768)
+    store_path = os.path.join(current_dir, "..", "..", "vector_store")
+    store.load(store_path)
 
     model = get_embedder()
 
     question = "What is fine-tuning?"
-    query_vector = model.encode(question)
+    query_vector = embed_query(question, model)
     chunks = store.search(query_vector, k=3)
 
     print("Retrieved chunks:")
