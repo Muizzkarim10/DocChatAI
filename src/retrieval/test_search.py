@@ -20,7 +20,9 @@ chunks = embed_chunks(chunks, model)
 
 store = VectorStore(dimension=768)
 store.add_chunks(chunks)
-store.save()  # persist to disk for later reuse
+
+store_path = os.path.join(current_dir, "..", "..", "vector_store")
+store.save(store_path)
 
 # Now try a real query
 query = "What is fine-tuning?"
@@ -34,3 +36,6 @@ for i, r in enumerate(results, 1):
     print(f"Source: {r['source']}, Pages: {r['page_start']}-{r['page_end']}")
     print(r["text"][:200])
     print()
+
+print("\n=== FULL TEXT of Result 1 ===")
+print(results[0]["text"])
