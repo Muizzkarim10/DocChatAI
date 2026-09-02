@@ -28,12 +28,7 @@ def build_index():
 
         pages = parse_pdf(pdf_path)
         chunks = chunk_pages(pages)
-        print(f"  {len(pages)} pages -> {len(chunks)} chunks")
-
-        # TEMP DEBUG — check source labeling immediately after chunking
-        sources_seen = set(c["source"] for c in chunks)
-        print(f"  DEBUG sources in this file's chunks: {sources_seen}")
-
+    
         chunks = embed_chunks(chunks, model)
         store.add_chunks(chunks)
 
