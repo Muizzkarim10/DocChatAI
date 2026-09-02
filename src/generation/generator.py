@@ -13,6 +13,31 @@ Instructions:
 - After your answer, cite which source/page(s) you used.
 """
 
+REWRITE_PROMPT = """Given the conversation history and a follow-up question, rewrite the follow-up question to be a standalone question that includes all necessary context. If the follow-up question is already standalone, return it unchanged.
+
+Conversation history:
+{history}
+
+Follow-up question: {question}
+
+Standalone question:"""
+
+
+def reformulate_query(question: str, history: list[dict], model: str = "llama3.2") -> str:
+    if not history:
+        return question  # first turn — nothing to reformulate against
+
+    history_text = "\n".join(
+        f"User: {turn['question']}\nAssistant: {turn['answer']}" for turn in history
+    )
+    prompt = REWRITE_PROMPT.format(history=history_text, question=question)
+
+    response = ollama.chat(
+        model=model,
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return response["message"]["content"].strip()
+
 
 def build_context(chunks: list[dict]) -> str:
     """
@@ -28,17 +53,23 @@ def build_context(chunks: list[dict]) -> str:
     return "\n\n".join(parts)
 
 
-def generate_answer(question: str, chunks: list[dict], model: str = "llama3.2") -> str:
+def generate_answer(question: str, chunks: list[dict], history: list[dict] = None, model: str = "llama3.2") -> str:
     context = build_context(chunks)
-    prompt = PROMPT_TEMPLATE.format(context=context, question=question)
+
+    history_text = ""
+    if history:
+        history_text = "\n\nPrevious conversation:\n" + "\n".join(
+            f"User: {turn['question']}\nAssistant: {turn['answer']}" for turn in history
+        )
+
+    prompt = PROMPT_TEMPLATE.format(context=context, question=question) + history_text
 
     response = ollama.chat(
         model=model,
         messages=[{"role": "user", "content": prompt}]
     )
-
+    
     return response["message"]["content"]
-
 
 if __name__ == "__main__":
     import sys, os
