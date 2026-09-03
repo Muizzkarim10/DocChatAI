@@ -4,6 +4,7 @@ import shutil
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(current_dir, "..", "embeddings"))
@@ -18,6 +19,13 @@ from vector_store import VectorStore
 from generator import generate_answer, reformulate_query
 
 app = FastAPI(title="DocuChat-AI")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # React's default dev server port
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Loaded once at server startup, not per-request — same principle as
 # batch-encoding chunks earlier: expensive resources get loaded once and reused.
@@ -101,4 +109,16 @@ async def upload_document(file: UploadFile = File(...)):
         "pages": len(pages),
         "chunks_added": len(chunks),
         "total_chunks_in_index": len(store.metadata)
+    }
+
+@app.get("/documents")
+def list_documents():
+    doc_chunk_counts = {}
+    for m in store.metadata:
+        doc_chunk_counts[m["source"]] = doc_chunk_counts.get(m["source"], 0) + 1
+
+    return {
+        "documents": [
+            {"name": name, "chunks": count} for name, count in doc_chunk_counts.items()
+        ]
     }

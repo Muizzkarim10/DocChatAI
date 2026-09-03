@@ -13,7 +13,7 @@ model = get_embedder()
 store = VectorStore(dimension=768)
 store.load(store_path)
 
-query = "What is overfitting?"
+query = "What are the main types of fine-tuning in order to fine-tune a pre-trained model for a specific task?"
 query_vector = embed_query(query, model)
 
 results = store.search(query_vector, k=5)
