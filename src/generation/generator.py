@@ -1,5 +1,8 @@
 import ollama
 
+OLLAMA_HOST = "http://host.docker.internal:11434"
+client = ollama.Client(host=OLLAMA_HOST)
+
 PROMPT_TEMPLATE = """You are a helpful assistant answering questions using ONLY the provided context.
 
 Context:
@@ -32,7 +35,7 @@ def reformulate_query(question: str, history: list[dict], model: str = "llama3.2
     )
     prompt = REWRITE_PROMPT.format(history=history_text, question=question)
 
-    response = ollama.chat(
+    response = client.chat(
         model=model,
         messages=[{"role": "user", "content": prompt}]
     )
@@ -64,7 +67,7 @@ def generate_answer(question: str, chunks: list[dict], history: list[dict] = Non
 
     prompt = PROMPT_TEMPLATE.format(context=context, question=question) + history_text
 
-    response = ollama.chat(
+    response = client.chat(
         model=model,
         messages=[{"role": "user", "content": prompt}]
     )
