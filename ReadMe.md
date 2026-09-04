@@ -1,4 +1,4 @@
-# DocuChat-AI
+# DocChatAI
 
 A full-stack Retrieval-Augmented Generation (RAG) system for chatting with your own PDF documents — upload files, ask questions in natural language, and get answers grounded in your documents with page-level source citations.
 
