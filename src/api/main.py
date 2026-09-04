@@ -22,7 +22,7 @@ app = FastAPI(title="DocuChat-AI")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # React's default dev server port
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],  # React's default dev server port
     allow_methods=["*"],
     allow_headers=["*"],
 )
