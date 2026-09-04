@@ -98,7 +98,7 @@ function App() {
       )}
 
       <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
-        <div className="sidebar-header">DocuChat</div>
+        <div className="sidebar-header">DocChat</div>
 
         <label className="upload-trigger">
           {uploading ? "Uploading…" : "+ Add document"}
